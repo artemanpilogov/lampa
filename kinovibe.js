@@ -1,6 +1,12 @@
 (function() {
   'use strict';
 
+  // Проверка доступности Lampa
+  if (typeof Lampa === 'undefined') {
+    console.error('Lampa is not defined');
+    return;
+  }
+
   var Defined = {
     api: 'kinovibe',
     localhost: 'https://kinovibe.vip/',
@@ -113,23 +119,30 @@
       this.find();
     };
 
-    /**
-     * Поиск контента
-     */
-    this.find = function() {
-      var _this = this;
-      var search_query = object.search || object.movie.title || object.movie.name;
-      var is_serial = object.movie.name ? true : false;
-      
-      this.loading(true);
-      
-      // Формируем URL для поиска
-      var search_url = Defined.localhost + 'engine/ajax/search.php';
-      
-      network.silent(search_url, function(html) {
-        _this.parseSearch(html, search_query, is_serial);
-      }, function(error) {
-        _this.empty();
+      try {
+        var search_query = object.search || object.movie.title || object.movie.name;
+        var is_serial = object.movie.name ? true : false;
+        
+        this.loading(true);
+        
+        // Формируем URL для поиска
+        var search_url = Defined.localhost + 'engine/ajax/search.php';
+        
+        network.silent(search_url, function(html) {
+          _this.parseSearch(html, search_query, is_serial);
+        }, function(error) {
+          console.log('KinoVibe: Search error', error);
+          _this.empty();
+        }, {
+          query: search_query
+        }, {
+          dataType: 'html',
+          timeout: 10000
+        });
+      } catch(e) {
+        console.error('KinoVibe: Find error', e);
+        this.empty();
+      }this.empty();
       }, {
         query: search_query
       }, {
@@ -735,48 +748,58 @@
       this.clearImages();
       files.destroy();
       scroll.destroy();
-    };
-  }
-
-  /**
-   * Запуск плагина
-   */
-  function startPlugin() {
-    window.kinovibe_plugin = true;
-    
-    var manifest = {
-      type: 'video',
-      version: '1.0.0',
-      name: 'KinoVibe',
-      description: 'Плагин для просмотра онлайн фильмов и сериалов с KinoVibe.vip',
-      component: 'kinovibe',
-      onContextMenu: function(object) {
-        return {
-          name: 'Смотреть на KinoVibe',
-          description: ''
-        };
-      },
-      onContextLauch: function(object) {
-        resetTemplates();
-        Lampa.Component.add('kinovibe', component);
-        
-        Lampa.Activity.push({
-          url: '',
-          title: 'KinoVibe - Онлайн просмотр',
-          component: 'kinovibe',
-          search: object.title || object.name,
-          search_one: object.title,
-          search_two: object.original_title,
+    try {
+      window.kinovibe_plugin = true;
+      
+      var manifest = {
+        type: 'video',
+        version: '1.0.1',
+        name: 'KinoVibe',
+        description: 'Плагин для просмотра онлайн фильмов и сериалов с KinoVibe.vip',
+        component: 'kinovibe',
+        onContextMenu: function(object) {
+          return {
+            name: 'Смотреть на KinoVibe',
+            description: ''
+          };
+        },
+        onContextLauch: function(object) {
+          try {
+            resetTemplates();
+            Lampa.Component.add('kinovibe', component);
+            
+            Lampa.Activity.push({
+              url: '',
+              title: 'KinoVibe - Онлайн просмотр',
+              component: 'kinovibe',
+              search: object.title || object.name,
+              search_one: object.title,
+              search_two: object.original_title,
+              movie: object,
+              page: 1
+            });
+          } catch(e) {
+            console.error('KinoVibe: Launch error', e);
+            Lampa.Noty.show('Ошибка запуска KinoVibe: ' + e.message);
+          }
+        }
+      };
+      
+            search_two: object.original_title,
           movie: object,
           page: 1
-        });
-      }
-    };
-    
-    Lampa.Manifest.plugins = manifest;
-    
-    // Добавляем переводы
-    Lampa.Lang.add({
+      // Добавляем переводы
+      Lampa.Lang.add({
+        kinovibe_watch: {
+          ru: 'Смотреть на KinoVibe',
+          en: 'Watch on KinoVibe',
+          uk: 'Дивитися на KinoVibe'
+        }
+      });
+    } catch(e) {
+      console.error('KinoVibe: Plugin initialization error', e);
+    }
+  }pa.Lang.add({
       kinovibe_watch: {
         ru: 'Смотреть на KinoVibe',
         en: 'Watch on KinoVibe',
@@ -917,13 +940,23 @@
         addButton({
           render: e.object.activity.render().find('.view--torrent'),
           movie: e.data.movie
-        });
+      // Синхронизация хранилища
+      if (Lampa.Manifest.app_digital >= 177) {
+        Lampa.Storage.sync('online_choice_kinovibe', 'object_object');
       }
-    });
+    } catch(e) {
+      console.error('KinoVibe: Plugin initialization error', e);
+    }
+  }
 
-    // Синхронизация хранилища
-    if (Lampa.Manifest.app_digital >= 177) {
-      Lampa.Storage.sync('online_choice_kinovibe', 'object_object');
+  if (!window.kinovibe_plugin) {
+    try {
+      startPlugin();
+      console.log('KinoVibe plugin v1.0.1 loaded successfully');
+    } catch(e) {
+      console.error('KinoVibe: Failed to start plugin', e);
+    }
+  }ibe', 'object_object');
     }
   }
 
