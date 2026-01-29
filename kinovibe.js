@@ -119,6 +119,10 @@
       this.find();
     };
 
+    /**
+     * Поиск фильмов/сериалов
+     */
+    this.find = function() {
       try {
         var search_query = object.search || object.movie.title || object.movie.name;
         var is_serial = object.movie.name ? true : false;
@@ -142,13 +146,7 @@
       } catch(e) {
         console.error('KinoVibe: Find error', e);
         this.empty();
-      }this.empty();
-      }, {
-        query: search_query
-      }, {
-        dataType: 'html',
-        timeout: 10000
-      });
+      }
     };
 
     /**
@@ -748,6 +746,10 @@
       this.clearImages();
       files.destroy();
       scroll.destroy();
+    };
+  }
+
+  function startPlugin() {
     try {
       window.kinovibe_plugin = true;
       
@@ -785,9 +787,6 @@
         }
       };
       
-            search_two: object.original_title,
-          movie: object,
-          page: 1
       // Добавляем переводы
       Lampa.Lang.add({
         kinovibe_watch: {
@@ -799,154 +798,148 @@
     } catch(e) {
       console.error('KinoVibe: Plugin initialization error', e);
     }
-  }pa.Lang.add({
-      kinovibe_watch: {
-        ru: 'Смотреть на KinoVibe',
-        en: 'Watch on KinoVibe',
-        uk: 'Дивитися на KinoVibe'
-      }
-    });
+  }
 
-    // Добавляем CSS стили
-    Lampa.Template.add('kinovibe_css', `
-      <style>
-        .online-prestige{position:relative;border-radius:.3em;background-color:rgba(0,0,0,0.3);display:flex}
-        .online-prestige__body{padding:1.2em;line-height:1.3;flex-grow:1;position:relative}
-        .online-prestige__img{position:relative;width:13em;flex-shrink:0;min-height:8.2em}
-        .online-prestige__img>img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;border-radius:.3em;opacity:0;transition:opacity .3s}
-        .online-prestige__img--loaded>img{opacity:1}
-        .online-prestige__folder{padding:1em;flex-shrink:0}
-        .online-prestige__folder>svg{width:4.4em !important;height:4.4em !important}
-        .online-prestige__viewed{position:absolute;top:1em;left:1em;background:rgba(0,0,0,0.45);border-radius:100%;padding:.25em;font-size:.76em}
-        .online-prestige__viewed>svg{width:1.5em !important;height:1.5em !important}
-        .online-prestige__episode-number{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:2em}
-        .online-prestige__loader{position:absolute;top:50%;left:50%;width:2em;height:2em;margin-left:-1em;margin-top:-1em;background:url(./img/loader.svg) no-repeat center center;background-size:contain}
-        .online-prestige__head,.online-prestige__footer{display:flex;justify-content:space-between;align-items:center}
-        .online-prestige__timeline{margin:.8em 0}
-        .online-prestige__timeline>.time-line{display:block !important}
-        .online-prestige__title{font-size:1.7em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
-        .online-prestige__info{display:flex;align-items:center}
-        .online-prestige__quality{padding-left:1em;white-space:nowrap}
-        .online-prestige.focus::after{content:'';position:absolute;top:-.6em;left:-.6em;right:-.6em;bottom:-.6em;border-radius:.7em;border:solid .3em #fff;z-index:-1}
-        .online-prestige+.online-prestige{margin-top:1.5em}
-        .online-empty{line-height:1.4}
-        .online-empty__title{font-size:1.8em;margin-bottom:.3em}
-        .online-empty__time{font-size:1.2em;font-weight:300;margin-bottom:1.6em}
-      </style>
+  // Добавляем CSS стили
+  Lampa.Template.add('kinovibe_css', `
+    <style>
+      .online-prestige{position:relative;border-radius:.3em;background-color:rgba(0,0,0,0.3);display:flex}
+      .online-prestige__body{padding:1.2em;line-height:1.3;flex-grow:1;position:relative}
+      .online-prestige__img{position:relative;width:13em;flex-shrink:0;min-height:8.2em}
+      .online-prestige__img>img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;border-radius:.3em;opacity:0;transition:opacity .3s}
+      .online-prestige__img--loaded>img{opacity:1}
+      .online-prestige__folder{padding:1em;flex-shrink:0}
+      .online-prestige__folder>svg{width:4.4em !important;height:4.4em !important}
+      .online-prestige__viewed{position:absolute;top:1em;left:1em;background:rgba(0,0,0,0.45);border-radius:100%;padding:.25em;font-size:.76em}
+      .online-prestige__viewed>svg{width:1.5em !important;height:1.5em !important}
+      .online-prestige__episode-number{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:2em}
+      .online-prestige__loader{position:absolute;top:50%;left:50%;width:2em;height:2em;margin-left:-1em;margin-top:-1em;background:url(./img/loader.svg) no-repeat center center;background-size:contain}
+      .online-prestige__head,.online-prestige__footer{display:flex;justify-content:space-between;align-items:center}
+      .online-prestige__timeline{margin:.8em 0}
+      .online-prestige__timeline>.time-line{display:block !important}
+      .online-prestige__title{font-size:1.7em;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+      .online-prestige__info{display:flex;align-items:center}
+      .online-prestige__quality{padding-left:1em;white-space:nowrap}
+      .online-prestige.focus::after{content:'';position:absolute;top:-.6em;left:-.6em;right:-.6em;bottom:-.6em;border-radius:.7em;border:solid .3em #fff;z-index:-1}
+      .online-prestige+.online-prestige{margin-top:1.5em}
+      .online-empty{line-height:1.4}
+      .online-empty__title{font-size:1.8em;margin-bottom:.3em}
+      .online-empty__time{font-size:1.2em;font-weight:300;margin-bottom:1.6em}
+    </style>
+  `);
+  
+  $('body').append(Lampa.Template.get('kinovibe_css', {}, true));
+
+  function resetTemplates() {
+    Lampa.Template.add('lampac_prestige_full', `
+      <div class="online-prestige online-prestige--full selector">
+        <div class="online-prestige__img">
+          <img alt="">
+          <div class="online-prestige__loader"></div>
+        </div>
+        <div class="online-prestige__body">
+          <div class="online-prestige__head">
+            <div class="online-prestige__title">{title}</div>
+            <div class="online-prestige__time">{time}</div>
+          </div>
+          <div class="online-prestige__timeline"></div>
+          <div class="online-prestige__footer">
+            <div class="online-prestige__info">{info}</div>
+            <div class="online-prestige__quality">{quality}</div>
+          </div>
+        </div>
+      </div>
     `);
     
-    $('body').append(Lampa.Template.get('kinovibe_css', {}, true));
-
-    function resetTemplates() {
-      Lampa.Template.add('lampac_prestige_full', `
-        <div class="online-prestige online-prestige--full selector">
-          <div class="online-prestige__img">
-            <img alt="">
-            <div class="online-prestige__loader"></div>
-          </div>
-          <div class="online-prestige__body">
-            <div class="online-prestige__head">
-              <div class="online-prestige__title">{title}</div>
-              <div class="online-prestige__time">{time}</div>
-            </div>
-            <div class="online-prestige__timeline"></div>
-            <div class="online-prestige__footer">
-              <div class="online-prestige__info">{info}</div>
-              <div class="online-prestige__quality">{quality}</div>
-            </div>
+    Lampa.Template.add('lampac_content_loading', `
+      <div class="online-empty">
+        <div class="broadcast__scan"><div></div></div>
+        <div class="online-empty__templates">
+          <div class="online-empty-template selector">
+            <div class="online-empty-template__ico"></div>
+            <div class="online-empty-template__body"></div>
           </div>
         </div>
-      `);
-      
-      Lampa.Template.add('lampac_content_loading', `
-        <div class="online-empty">
-          <div class="broadcast__scan"><div></div></div>
-          <div class="online-empty__templates">
-            <div class="online-empty-template selector">
-              <div class="online-empty-template__ico"></div>
-              <div class="online-empty-template__body"></div>
-            </div>
-          </div>
-        </div>
-      `);
-      
-      Lampa.Template.add('lampac_does_not_answer', `
-        <div class="online-empty">
-          <div class="online-empty__title"></div>
-          <div class="online-empty__time"></div>
-        </div>
-      `);
-      
-      Lampa.Template.add('lampac_prestige_folder', `
-        <div class="online-prestige online-prestige--folder selector">
-          <div class="online-prestige__folder">
-            <svg viewBox="0 0 128 112" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect y="20" width="128" height="92" rx="13" fill="white"></rect>
-              <path d="M29.9963 8H98.0037C96.0446 3.3021 91.4079 0 86 0H42C36.5921 0 31.9555 3.3021 29.9963 8Z" fill="white" fill-opacity="0.23"></path>
-              <rect x="11" y="8" width="106" height="76" rx="13" fill="white" fill-opacity="0.51"></rect>
-            </svg>
-          </div>
-          <div class="online-prestige__body">
-            <div class="online-prestige__head">
-              <div class="online-prestige__title">{title}</div>
-            </div>
-            <div class="online-prestige__footer">
-              <div class="online-prestige__info">{info}</div>
-            </div>
-          </div>
-        </div>
-      `);
-    }
-
-    // Кнопка в карточке
-    var button = `
-      <div class="full-start__button selector view--kinovibe" data-subtitle="${manifest.name} v${manifest.version}">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-        </svg>
-        <span>Смотреть на KinoVibe</span>
       </div>
-    `;
+    `);
+    
+    Lampa.Template.add('lampac_does_not_answer', `
+      <div class="online-empty">
+        <div class="online-empty__title"></div>
+        <div class="online-empty__time"></div>
+      </div>
+    `);
+    
+    Lampa.Template.add('lampac_prestige_folder', `
+      <div class="online-prestige online-prestige--folder selector">
+        <div class="online-prestige__folder">
+          <svg viewBox="0 0 128 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect y="20" width="128" height="92" rx="13" fill="white"></rect>
+            <path d="M29.9963 8H98.0037C96.0446 3.3021 91.4079 0 86 0H42C36.5921 0 31.9555 3.3021 29.9963 8Z" fill="white" fill-opacity="0.23"></path>
+            <rect x="11" y="8" width="106" height="76" rx="13" fill="white" fill-opacity="0.51"></rect>
+          </svg>
+        </div>
+        <div class="online-prestige__body">
+          <div class="online-prestige__head">
+            <div class="online-prestige__title">{title}</div>
+          </div>
+          <div class="online-prestige__footer">
+            <div class="online-prestige__info">{info}</div>
+          </div>
+        </div>
+      </div>
+    `);
+  }
 
-    Lampa.Component.add('kinovibe', component);
-    resetTemplates();
+  // Кнопка в карточке
+  var button = `
+    <div class="full-start__button selector view--kinovibe" data-subtitle="${manifest.name} v${manifest.version}">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+      </svg>
+      <span>Смотреть на KinoVibe</span>
+    </div>
+  `;
 
-    function addButton(e) {
-      if (e.render.find('.view--kinovibe').length) return;
+  Lampa.Component.add('kinovibe', component);
+  resetTemplates();
+
+  function addButton(e) {
+    if (e.render.find('.view--kinovibe').length) return;
+    
+    var btn = $(button);
+    
+    btn.on('hover:enter', function() {
+      resetTemplates();
+      Lampa.Component.add('kinovibe', component);
       
-      var btn = $(button);
-      
-      btn.on('hover:enter', function() {
-        resetTemplates();
-        Lampa.Component.add('kinovibe', component);
-        
-        Lampa.Activity.push({
-          url: '',
-          title: 'KinoVibe - Онлайн просмотр',
-          component: 'kinovibe',
-          search: e.movie.title || e.movie.name,
-          search_one: e.movie.title,
-          search_two: e.movie.original_title,
-          movie: e.movie,
-          page: 1
-        });
+      Lampa.Activity.push({
+        url: '',
+        title: 'KinoVibe - Онлайн просмотр',
+        component: 'kinovibe',
+        search: e.movie.title || e.movie.name,
+        search_one: e.movie.title,
+        search_two: e.movie.original_title,
+        movie: e.movie,
+        page: 1
       });
-      
-      e.render.after(btn);
-    }
+    });
+    
+    e.render.after(btn);
+  }
 
-    Lampa.Listener.follow('full', function(e) {
-      if (e.type == 'complite') {
-        addButton({
-          render: e.object.activity.render().find('.view--torrent'),
-          movie: e.data.movie
-      // Синхронизация хранилища
-      if (Lampa.Manifest.app_digital >= 177) {
-        Lampa.Storage.sync('online_choice_kinovibe', 'object_object');
-      }
-    } catch(e) {
-      console.error('KinoVibe: Plugin initialization error', e);
+  Lampa.Listener.follow('full', function(e) {
+    if (e.type == 'complite') {
+      addButton({
+        render: e.object.activity.render().find('.view--torrent'),
+        movie: e.data.movie
+      });
     }
+  });
+
+  // Синхронизация хранилища
+  if (Lampa.Manifest.app_digital >= 177) {
+    Lampa.Storage.sync('online_choice_kinovibe', 'object_object');
   }
 
   if (!window.kinovibe_plugin) {
@@ -956,10 +949,5 @@
     } catch(e) {
       console.error('KinoVibe: Failed to start plugin', e);
     }
-  }ibe', 'object_object');
-    }
   }
-
-  if (!window.kinovibe_plugin) startPlugin();
-
 })();
