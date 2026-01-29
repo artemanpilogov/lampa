@@ -765,7 +765,7 @@
             description: ''
           };
         },
-        onContextLauch: function(object) {
+        onContextLaunch: function(object) {
           try {
             resetTemplates();
             Lampa.Component.add('kinovibe', component);
