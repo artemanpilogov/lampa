@@ -15,7 +15,7 @@
 
   var balansers_with_search = ['kinovibe'];
   
-  var Network = Lampa.Reguest;
+  var Network = Lampa.Request;
 
   function component(object) {
     var network = new Network();
